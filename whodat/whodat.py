@@ -5,7 +5,7 @@ import operator
 import configparser
 
 
-league_year=2020
+league_year=2021
 espn_league_id=0
 espn_s2=''
 swid=''
@@ -36,11 +36,34 @@ def print_standings(divisions, victory_points):
         sorted_div_vps = dict( sorted(div_vps.items(), key=operator.itemgetter(1),reverse=True))
         for team_id, vp in sorted_div_vps.items():
             team = next(x for x in teams if x.team_id == team_id)
-            total_points = team.wins + vp
             print("{} {}-{}\t{}".format(team.team_name,
                                         team.wins,
                                         team.losses,
-                                        total_points))
+                                        vp))
+
+def calculate_points_for_week(week_num, victory_points):
+    box_scores = league.box_scores(week_num)
+    week_scores={}
+    for matchup in box_scores:
+        week_scores[matchup.home_team] = matchup.home_score
+        week_scores[matchup.away_team] = matchup.away_score
+
+    median_score = median(week_scores.values())
+    max_score = max(week_scores.values())
+    print('The median score for week {} was {}'.format(week_num, median_score))
+    for matchup in box_scores:
+        if matchup.home_score >= matchup.away_score:
+            victory_points[matchup.home_team.team_id] = victory_points[matchup.home_team.team_id] + 2
+            if matchup.away_score > median_score:
+                victory_points[matchup.away_team.team_id] = victory_points[matchup.away_team.team_id] + 1
+            if matchup.home_score == max_score:
+                victory_points[matchup.home_team.team_id] = victory_points[matchup.home_team.team_id] + 1
+        else:
+            victory_points[matchup.away_team.team_id] = victory_points[matchup.away_team.team_id] + 2
+            if matchup.home_score > median_score:
+                victory_points[matchup.home_team.team_id] = victory_points[matchup.home_team.team_id] + 1
+            if matchup.away_score == max_score:
+                victory_points[matchup.away_team.team_id] = victory_points[matchup.away_team.team_id] + 1
 
 
 if __name__ == '__main__':
@@ -66,21 +89,6 @@ if __name__ == '__main__':
         reg_season_week = league.settings.reg_season_count
     
     for cur_week in range(1, reg_season_week):
-        box_scores = league.box_scores(cur_week)
-        week_scores={}
-        all_scores=[]
-        for matchup in box_scores:
-            week_scores[matchup.home_team] = matchup.home_score
-            week_scores[matchup.away_team] = matchup.away_score
-            all_scores.extend([matchup.home_score, matchup.away_score])
-
-        median_score = median(week_scores.values())
-        max_score = max(week_scores.values())
-        print('The median score for week {} was {}'.format(cur_week, median_score))
-        for team, score in week_scores.items():
-            if score > median_score:
-                victory_points[team.team_id] = victory_points[team.team_id] + 1
-            if score == max_score:
-                victory_points[team.team_id] = victory_points[team.team_id] + 1
+        calculate_points_for_week(cur_week, victory_points)
 
     print_standings(divisions, victory_points)
