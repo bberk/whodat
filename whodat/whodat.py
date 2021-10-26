@@ -30,4 +30,4 @@ if __name__ == '__main__':
 
     __league.calculate_victory_points()
 
-    __league.print_stangings()
+    __league.print_standings()
