@@ -67,11 +67,13 @@ class League:
                 self.__all_teams[matchup.home_team.team_id].add_loss(week_num, matchup.home_score)
                 self.__all_teams[matchup.away_team.team_id].add_win(week_num, matchup.away_score)
 
-    def print_stangings(self):
+    def print_standings(self):
         df = self.__calculate_seeding()
         for d_id, d_name in self.__divisions.items():
             print()
             self.print_division_scores(df, d_id, d_name)
+        print()
+        self.print_weekly_victory_points(df)
 
     def __calculate_seeding(self):
         raw_data = list(map(lambda t: t.to_pandas_row(), self.__all_teams.values()))
@@ -89,4 +91,11 @@ class League:
         df = seeding_df[seeding_df["division_id"] == division_id]
         printable_df = df[["seed", "team", "record", "victory points", "points for"]]
         print("Division: {}".format(division_name))
+        print(printable_df.to_string(index=False))
+
+    @staticmethod
+    def print_weekly_victory_points(seeding_df):
+        df = seeding_df[["seed", "team", "weekly_victory_points"]]
+        printable_df = pd.concat([df, df["weekly_victory_points"].apply(pd.Series)], axis=1)\
+            .drop(columns="weekly_victory_points")
         print(printable_df.to_string(index=False))
