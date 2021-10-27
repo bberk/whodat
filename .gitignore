@@ -1,1 +1,3 @@
 secrets.conf
+db.sqlite3
+__pycache__/
