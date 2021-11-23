@@ -22,6 +22,6 @@ urlpatterns = [
     path('', views.index, name='index'),
     # /standings/<league_id>/
     path('<int:league_id>', views.get_standings, name='get_standings'),
-    # /standings/refresh
-    path('refresh/', views.refresh, name='refresh')
+    # /standings/<league_id>/refresh
+    path('<int:league_id>/refresh/', views.refresh, name='refresh')
 ]
