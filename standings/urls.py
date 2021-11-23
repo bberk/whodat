@@ -18,10 +18,14 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # /standings/
+    # /
     path('', views.index, name='index'),
-    # /standings/<league_id>/
-    path('<int:league_id>', views.get_standings, name='get_standings'),
-    # /standings/<league_id>/refresh
-    path('<int:league_id>/refresh/', views.refresh, name='refresh')
+    # /<league_id>
+    path('<int:league_id>', views.get_league, name='league'),
+    # /<league_id>/standings
+    path('<int:league_id>/results/', views.get_results, name='results'),
+    # /<league_id>/refresh
+    path('<int:league_id>/refresh/', views.refresh, name='refresh'),
+    # /<league_id>/teams
+    path('<int:league_id>/teams/', views.get_teams, name='teams'),
 ]
