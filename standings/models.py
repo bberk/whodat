@@ -42,6 +42,8 @@ class Matchup(models.Model):
     away_team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='away_team')
     home_score = models.FloatField()
     away_score = models.FloatField()
+    home_vp = models.IntegerField(default=0)
+    away_vp = models.IntegerField(default=0)
 
     def __str__(self):
         return f"Matchup wk {self.week}: " \

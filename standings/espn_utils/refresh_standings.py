@@ -1,4 +1,5 @@
 import logging
+from statistics import median
 
 from espn_api.football import League as EspnLeague
 from espn_api.football import Team as EspnTeam
@@ -102,6 +103,8 @@ class RefreshStandings:
             for box_score in box_scores:
                 self.__update_matchup(box_score, cur_week)
 
+            self.__update_victory_points(cur_week)
+
     def __update_matchup(self, box_score: EspnBoxScore, week: int):
         try:
             m = Matchup.objects.get(week=week,
@@ -128,3 +131,35 @@ class RefreshStandings:
                 away_score=box_score.away_score
             )
             m.save()
+
+    def __update_victory_points(self, week: int):
+        self.logger.info(f'Updating victory_points for league {self.__league_id} week {week}')
+        matchups = Matchup.objects.filter(week=week,
+                                          home_team__division__league__espn_id=self.__league_id)
+        week_scores = matchups.values_list('home_score', flat=True)\
+            .union(matchups.values_list('away_score', flat=True))
+        median_score = median(week_scores)
+        max_score = max(week_scores)
+
+        for matchup in matchups:
+            if matchup.home_score >= matchup.away_score:
+                matchup.home_vp = self.win_vp(matchup.home_score, max_score)
+                matchup.away_vp = self.loss_vp(matchup.away_score, median_score)
+            else:
+                matchup.home_vp = self.loss_vp(matchup.home_score, median_score)
+                matchup.away_vp = self.win_vp(matchup.away_score, max_score)
+            matchup.save()
+
+    @staticmethod
+    def win_vp(score, max_score):
+        if score == max_score:
+            return 3
+        else:
+            return 2
+
+    @staticmethod
+    def loss_vp(score, median_score):
+        if score > median_score:
+            return 1
+        else:
+            return 0
