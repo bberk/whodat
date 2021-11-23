@@ -11,7 +11,7 @@ class League(models.Model):
     updated_at = models.DateTimeField()
 
     def __str__(self):
-        return "ESPN League: {}".format(self.espn_id)
+        return f"ESPN League: {self.espn_id}"
 
 
 class Division(models.Model):
@@ -20,7 +20,7 @@ class Division(models.Model):
     league = models.ForeignKey(League, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "Division: {}".format(self.name)
+        return f"Division: {self.name}"
 
 
 class Team(models.Model):
@@ -33,4 +33,16 @@ class Team(models.Model):
     points_for = models.FloatField(default=0)
 
     def __str__(self):
-        return "Team: {}".format(self.name)
+        return self.name
+
+
+class Matchup(models.Model):
+    week = models.IntegerField()
+    home_team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='home_team')
+    away_team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='away_team')
+    home_score = models.FloatField()
+    away_score = models.FloatField()
+
+    def __str__(self):
+        return f"Matchup wk {self.week}: " \
+               f"{self.away_team} {self.away_score} @ {self.home_score} {self.home_team}"
