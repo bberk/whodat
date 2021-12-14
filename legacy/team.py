@@ -18,15 +18,21 @@ class Team:
 
     def add_win(self, week_num, score):
         week_max = self.__league.get_week_max(week_num)
-        if week_max == score:
+        week_median = self.__league.get_week_median(week_num)
+        if score == week_max:
             self.__victory_points[week_num] = 3
-        else:
+        elif score > week_median:
             self.__victory_points[week_num] = 2
+        else:
+            self.__victory_points[week_num] = 1
 
     def add_loss(self, week_num, score):
+        week_min = self.__league.get_week_min(week_num)
         week_median = self.__league.get_week_median(week_num)
         if score > week_median:
             self.__victory_points[week_num] = 1
+        elif score == week_min:
+            self.__victory_points[week_num] = -1
         else:
             self.__victory_points[week_num] = 0
 
