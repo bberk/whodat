@@ -36,10 +36,12 @@ class League:
     def __weeks_to_calculate_vp(self):
         reg_season_count = self.__league.settings.reg_season_count
         league_current_week = self.__league.current_week
+        print(f"reg_season_count: {reg_season_count}")
+        print(f"league_current_week: {league_current_week}")
         if reg_season_count > league_current_week:
             return league_current_week
         else:
-            return reg_season_count
+            return reg_season_count + 1
 
     def calculate_victory_points(self):
         for cur_week in range(1, self.__weeks_to_calculate_vp()):
@@ -56,6 +58,8 @@ class League:
 
         self.__median_scores[week_num] = median(week_scores.values())
         self.__max_scores[week_num] = max(week_scores.values())
+
+        print(f"Week {week_num}; median: {self.__median_scores[week_num]} max: {self.__max_scores[week_num]}")
 
         for matchup in box_scores:
             if matchup.home_score >= matchup.away_score:
