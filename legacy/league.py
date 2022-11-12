@@ -15,6 +15,7 @@ class League:
         self.__all_teams = {}  # dict of team_id -> Team
         self.__median_scores = {}  # dict of week_num -> median_score
         self.__max_scores = {}  # dict of week_num -> max_score
+        self.__min_scores = {}  # dict of week_num -> min_score
         self.__build_teams()
         self.__build_divisions()
 
@@ -29,6 +30,9 @@ class League:
 
     def get_week_max(self, week_num):
         return self.__max_scores[week_num]
+
+    def get_week_min(self, week_num):
+        return self.__min_scores[week_num]
 
     def get_week_median(self, week_num):
         return self.__median_scores[week_num]
@@ -58,6 +62,7 @@ class League:
 
         self.__median_scores[week_num] = median(week_scores.values())
         self.__max_scores[week_num] = max(week_scores.values())
+        self.__min_scores[week_num] = min(week_scores.values())
 
         print(f"Week {week_num}; median: {self.__median_scores[week_num]} max: {self.__max_scores[week_num]}")
 
