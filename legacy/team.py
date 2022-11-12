@@ -16,25 +16,29 @@ class Team:
     def get_division_name(self):
         return self.__team.division_name
 
+    @staticmethod
+    def week_to_str(week_num):
+        return '\033[95m' + str(week_num) + '\033[0m'
+
     def add_win(self, week_num, score):
         week_max = self.__league.get_week_max(week_num)
         week_median = self.__league.get_week_median(week_num)
         if score == week_max:
-            self.__victory_points[week_num] = 3
+            self.__victory_points[self.week_to_str(week_num)] = 3
         elif score > week_median:
-            self.__victory_points[week_num] = 2
+            self.__victory_points[self.week_to_str(week_num)] = 2
         else:
-            self.__victory_points[week_num] = 1
+            self.__victory_points[self.week_to_str(week_num)] = 1
 
     def add_loss(self, week_num, score):
         week_min = self.__league.get_week_min(week_num)
         week_median = self.__league.get_week_median(week_num)
         if score > week_median:
-            self.__victory_points[week_num] = 1
+            self.__victory_points[self.week_to_str(week_num)] = 1
         elif score == week_min:
-            self.__victory_points[week_num] = -1
+            self.__victory_points[self.week_to_str(week_num)] = -1
         else:
-            self.__victory_points[week_num] = 0
+            self.__victory_points[self.week_to_str(week_num)] = 0
 
     def to_pandas_row(self):
         return {
