@@ -104,7 +104,48 @@ class League:
 
     @staticmethod
     def print_weekly_victory_points(seeding_df):
+        def color_formatter(x):
+            num = int(x)
+            if num == 3:
+                color = Colors.OKBLUE
+            elif num == 2:
+                color = Colors.OKGREEN
+            elif num == 1:
+                color = Colors.WARNING
+            elif num == 0:
+                color = Colors.FAIL
+            else:
+                color = Colors.FAIL
+                # return "\U0001F4A9"
+
+            return color + str(num) + Colors.ENDC
+
         df = seeding_df[["seed", "team", "weekly_victory_points"]]
-        printable_df = pd.concat([df, df["weekly_victory_points"].apply(pd.Series)], axis=1)\
+        printable_df = pd.concat([df, df["weekly_victory_points"].apply(pd.Series)], axis=1) \
             .drop(columns="weekly_victory_points")
-        print(printable_df.to_string(index=False))
+
+        formatters = {
+            Team.week_to_str(1): color_formatter,
+            Team.week_to_str(2): color_formatter,
+            Team.week_to_str(3): color_formatter,
+            Team.week_to_str(4): color_formatter,
+            Team.week_to_str(5): color_formatter,
+            Team.week_to_str(6): color_formatter,
+            Team.week_to_str(7): color_formatter,
+            Team.week_to_str(8): color_formatter,
+            Team.week_to_str(9): color_formatter,
+        }
+
+        print(printable_df.to_string(index=False, formatters=formatters))
+
+
+class Colors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
