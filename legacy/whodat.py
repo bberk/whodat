@@ -12,7 +12,8 @@ def read_config():
         'espn_league_id': int(config['DEFAULT']['espn_league_id']),
         'espn_s2': config['DEFAULT']['espn_s2'],
         'swid': config['DEFAULT']['swid'],
-        'league_year': int(config['DEFAULT']['league_year'])
+        'league_year': int(config['DEFAULT']['league_year']),
+        'cup_week': int(config['DEFAULT']['cup_week']),
     }
 
 
@@ -24,7 +25,7 @@ if __name__ == '__main__':
                              espn_s2=conf['espn_s2'],
                              swid=conf['swid'])
 
-    __league = League(espn_league)
+    __league = League(espn_league, cup_week=conf['cup_week'])
 
     __league.calculate_victory_points()
 
