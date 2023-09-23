@@ -126,7 +126,8 @@ class League:
             return color + str(num) + Colors.ENDC
 
         df = seeding_df[["seed", "team", "weekly_victory_points"]]
-        printable_df = pd.concat([df, df["weekly_victory_points"].apply(pd.Series)], axis=1) \
+        vpdf = seeding_df[["victory points"]]
+        printable_df = pd.concat([df, df["weekly_victory_points"].apply(pd.Series), vpdf], axis=1) \
             .drop(columns="weekly_victory_points")
 
         formatters = {

@@ -1,3 +1,5 @@
+import re
+
 from espn_api.football import Team as EspnTeam
 
 
@@ -7,7 +9,7 @@ class Team:
         self.__team = espn_team
         self.__league = league
         self.__team_id = espn_team.team_id
-        self.__team_name = espn_team.team_name
+        self.__team_name = self.sanitize_team_name(espn_team.team_name)
         self.__wins = 0
         self.__losses = 0
         self.__victory_points = {}  # dict of week_number -> victory_points
@@ -61,3 +63,7 @@ class Team:
             'weekly_victory_points': self.__victory_points,
             'points for': self.__team.points_for
         }
+
+    @staticmethod
+    def sanitize_team_name(team_name: str):
+        return re.compile(r"\s+").sub(" ", team_name).strip()
