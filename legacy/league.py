@@ -3,8 +3,6 @@ from statistics import median
 import numpy as np
 import pandas as pd
 from espn_api.football import League as EspnLeague
-from espn_api.football.box_score import BoxScore as EspnBoxScore
-from espn_api.football.box_player import BoxPlayer
 
 from team import Team
 
@@ -19,11 +17,16 @@ class League:
         self.__median_scores = {}  # dict of week_num -> median_score
         self.__max_scores = {}  # dict of week_num -> max_score
         self.__min_scores = {}  # dict of week_num -> min_score
+        self.__league_max = 0
+        self.__league_min = 999999
         self.__build_teams()
         self.__build_divisions()
 
     def get_cup_week(self):
         return self.__cup_week
+
+    def get_team(self, team_id):
+        return self.__all_teams[team_id]
 
     def __build_teams(self):
         for espnTeam in self.__league.teams:
@@ -46,8 +49,8 @@ class League:
     def __weeks_to_calculate_vp(self):
         reg_season_count = self.__league.settings.reg_season_count
         league_current_week = self.__league.current_week
-        print(f"reg_season_count: {reg_season_count}")
-        print(f"league_current_week: {league_current_week}")
+        # print(f"reg_season_count: {reg_season_count}")
+        # print(f"league_current_week: {league_current_week}")
         if reg_season_count >= league_current_week:
             return league_current_week
         else:
@@ -59,6 +62,7 @@ class League:
 
     def __calculate_vp_for_week(self, week_num: int):
         box_scores = self.__league.box_scores(week_num)
+
         # Calculate the median_score and max_score for determining victory points
         week_scores = {}
         for matchup in box_scores:
@@ -69,7 +73,8 @@ class League:
         self.__max_scores[week_num] = max(week_scores.values())
         self.__min_scores[week_num] = min(week_scores.values())
 
-        print(f"Week {week_num}; median: {self.__median_scores[week_num]} max: {self.__max_scores[week_num]}")
+        print("Week {0}; median: {1:.2f} max: {2:.2f}"
+              .format(week_num, self.__median_scores[week_num], self.__max_scores[week_num]))
 
         for matchup in box_scores:
             if matchup.home_score >= matchup.away_score:
@@ -108,7 +113,19 @@ class League:
         print(printable_df.to_string(index=False))
 
     @staticmethod
+    def highlight_max(x, color):
+        return np.where(x == np.nanmax(x.to_numpy()), f"color: {color};", None)
+
+    @staticmethod
+    def highlight_min(x, color):
+        return np.where(x == np.nanmin(x.to_numpy()), f"color: {color};", None)
+
+
+    @staticmethod
     def print_weekly_victory_points(seeding_df):
+        max_score = seeding_df["max score"].max()
+        min_score = seeding_df["min score"].min()
+
         def color_formatter(x):
             num = int(x)
             if num == 3:
@@ -125,10 +142,23 @@ class League:
 
             return color + str(num) + Colors.ENDC
 
+        def max_min_formatter(x):
+            num = float(x)
+            color = None
+            if num == float(max_score):
+                color = Colors.OKBLUE
+            elif num == float(min_score):
+                color = Colors.FAIL
+            if color is None:
+                return x
+            else: return color + str(num) + Colors.ENDC
+
         df = seeding_df[["seed", "team", "weekly_victory_points"]]
-        vpdf = seeding_df[["victory points"]]
-        printable_df = pd.concat([df, df["weekly_victory_points"].apply(pd.Series), vpdf], axis=1) \
-            .drop(columns="weekly_victory_points")
+        vp_df = seeding_df[["victory points"]]
+        max_min_df = seeding_df[["max score week", "max score", "min score week", "min score"]]
+        printable_df = pd.concat(
+            [df, df["weekly_victory_points"].apply(pd.Series), vp_df, max_min_df],
+            axis=1).drop(columns="weekly_victory_points")
 
         formatters = {
             Team.week_to_str(1): color_formatter,
@@ -145,9 +175,11 @@ class League:
             Team.week_to_str(12): color_formatter,
             Team.week_to_str(13): color_formatter,
             Team.week_to_str(14): color_formatter,
+            "max score": max_min_formatter,
+            "min score": max_min_formatter,
         }
 
-        print(printable_df.to_string(index=False, formatters=formatters))
+        print(printable_df.to_string(index=False, formatters=formatters, justify="right"))
 
 
 class Colors:
