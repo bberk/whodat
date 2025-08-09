@@ -6,10 +6,10 @@ setup(
     version='0.1.0',
     author='Brad Berk',
     install_requires=[
-        'espn_api>=0.44.1',
+        'espn_api>=0.45.1',
         'pandas>=1.5.1',
         'numpy',
         'jinja2',
-        'Django==3.2.8'
+        'Django==5.2.5'
     ]
 )
