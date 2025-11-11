@@ -66,7 +66,8 @@ class Team:
         if score > self.__max_score:
             self.__max_score = score
             self.__max_score_week = week_num
-        elif score < self.__min_score:
+
+        if score < self.__min_score:
             self.__min_score = score
             self.__min_score_week = week_num
 
